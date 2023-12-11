@@ -237,11 +237,14 @@ function StudentProfile() {
                                         />
                                     </div>
 
+                                    { (user_obj['role_type'] == 1) ?
                                     <div style={{ marginRight: "20px" }}>
                                         <MDBBtn style={{ width: '120px', height:'40px' }} type="submit" onClick={() => clickCreateJob()}>
                                             Create Job
                                         </MDBBtn>
                                     </div>
+                                    :
+                                    null}
                                     {/* <select
                                         value={category}
                                         onChange={(e) => handleCategoryChange(e.target.value)}

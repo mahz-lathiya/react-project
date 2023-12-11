@@ -15,7 +15,6 @@ import {
     IconSubscription,
     IconTickets
 } from '../../assets/icons';
-import { convertSlugToUrl } from '../../resources/utilities';
 import LogoComponent from './LogoComponent';
 import Menu from './MenuComponent';
 import MenuItem from './MenuItemComponent';
@@ -91,7 +90,6 @@ function SidebarComponent() {
                 onClick={() => redirect('/student_profile')}
             />}
 
-            {user_obj['role_type'] == 1 ?
             <MenuItem
                 id={SLUGS.overview}
                 items={[SLUGS.overviewTwo, SLUGS.overviewThree]}
@@ -99,8 +97,6 @@ function SidebarComponent() {
                 icon={IconOverview}
                 onClick={() => redirect('/jobs')}
             />
-            :
-            null}
 
             {/*
             <MenuItem

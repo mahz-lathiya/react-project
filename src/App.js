@@ -9,6 +9,7 @@ import StudentsData from "./pages/StudentsData";
 import JobsData from "./pages/JobsData";
 import JobForm from "./pages/JobForm";
 import NotFoundPage from "./pages/NotFoundPage";
+import NotAllowedPage from "./pages/NotAllowedPage";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/jobs"  element={<JobsData/>} />
           <Route path="/modify_job/*"  element={<JobForm/>} />
           <Route path="*" element={<NotFoundPage/>} />
+          <Route path="/not_allowed" element={<NotAllowedPage/>} />
       </Routes> 
     </Router>
     <ToastContainer />

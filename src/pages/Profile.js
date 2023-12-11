@@ -65,13 +65,10 @@ function StudentProfile() {
   const [start_date, set_start_date] = useState("")
   const [end_date, set_end_date] = useState("")
   const [description, set_description] = useState("")
-  const [updated_at, set_updated_at] = useState("")
   const [company_name, set_company_name] = useState("")
-  const [work_experience_id, set_work_experience_id] = useState("")
-  const [academeic_credential_id, set_academeic_credential_id] = useState("")
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [skills, set_skills] = useState("");
+  const [selected_skills, set_selected_skills] = useState([]);
 
-  const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const theme = useTheme();
@@ -102,13 +99,30 @@ function StudentProfile() {
         }
       }
 
+      if(response.skills[0] == undefined){
+        set_skills([{
+          'value' : null,
+          'label' : 'Select Skills'
+        }]);
+      }
+      else{
+        set_skills(response.skills);
+      }
+
+      if((response.user_data[0]['id'] != undefined) && (response.user_data[0]['id'] != 0)){
+        let chosen_skills = [];
+  
+        for(let key in response.skills){
+          if(response.skills[key]['selected'] != undefined && response.skills[key]['selected'] != null){
+            chosen_skills.push(response.skills[key]);
+          }
+        }
+        set_selected_skills(chosen_skills);
+      }
+
       if(response.user_data[0] != undefined){
         render_data(response.user_data[0]);
       }
-      if(response.skills[0] != undefined){
-        setSelectedOptions(response.skills);
-      }
-      
 
     }
     catch(e){
@@ -117,9 +131,6 @@ function StudentProfile() {
   }
 
   function render_data(data={}){
-    let form = document.querySelector('form');
-
-    console.log(data);
     setName(data['name']);
     setEmail(data['email']);
     setPassword(data['password']);
@@ -135,43 +146,22 @@ function StudentProfile() {
     set_end_date(data['end_date']);
     set_description(data['description']);
     set_company_name(data['company_name']);
-    set_work_experience_id(data['work_experience_id']);
-    
-    // for(let key in data){
-    //   let input_selector = `input[name="${key}"]`;
-    //   let field = form.querySelector(input_selector);
-
-    //   if(field == undefined){
-    //     continue;
-    //   }
-
-    //   field.value = data[key];
-    // }
   }
 
   var user_obj = JSON.parse(localStorage.getItem('user_data'));
 
   var date_new = new Date();
   const formatted_date = moment(date_new).format('YYYY-MM-DD HH:mm:ss')
-
-  // const options = [
-  //    { value: 'apple', label: 'Apple' },
-  //    { value: 'banana', label: 'Banana' },
-  //    { value: 'orange', label: 'Orange' },
-  //    // Add more options as needed
-  // ];
    
-   
-    const handleSelectChange = (selectedValues) => {
-     setSelectedOptions(selectedValues);
-    };
+  const handleSelectChange = (selectedValues) => {
+    set_selected_skills(selectedValues);
+  };
    
 
   const submitForm = (e) =>{
     e.preventDefault();
 
-   
-    let form_obj = new FormData();
+    let form_obj = new FormData(e.target);
     form_obj.set('user_name', name);
     form_obj.set('user_email',email);
     form_obj.set('user_password',password);
@@ -187,8 +177,6 @@ function StudentProfile() {
     form_obj.set('updated_at', formatted_date);
     form_obj.set('company_name', company_name);
     form_obj.set('created_at', formatted_date);
-    form_obj.set('work_experience_id', null);
-    form_obj.set('academic_credential_id', null);
    
     let options = {
         method: 'POST',
@@ -203,7 +191,7 @@ function StudentProfile() {
         return promise.json();
     })
     .then((response) => {
-        if(response.success != true){
+        if(response.status != true){
             throw new Error(response.message);
         }
         toast.success(response.message, {
@@ -220,7 +208,7 @@ function StudentProfile() {
         setIsSubmitting(false)
         // localStorage.setItem('token', r.data.token)
         setTimeout(() => {
-            navigate("/");
+            //navigate("/student_profile");
         }, 2000);
     })
     .catch((e) => {
@@ -279,7 +267,6 @@ function StudentProfile() {
                               <MDBCardText>Full Name</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9" style={{ marginTop: '30px' }}>
-                              {/* <MDBCardText className="text-muted">{ user_obj['name'] != null ? user_obj['name'] : null }</MDBCardText> */}
                               <MDBInput placeholder='username...' type='text' name="name" required autoComplete="off" value={name}
                                onChange={(e)=>{setName(e.target.value)}}
                               />
@@ -291,7 +278,6 @@ function StudentProfile() {
                               <MDBCardText>Email</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='email...'  type='email' name="email" required autoComplete="off" value={email}
                                onChange={(e)=>{setEmail(e.target.value)}}
                               />
@@ -306,7 +292,6 @@ function StudentProfile() {
                               <MDBCardText>Password</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='...'  type='password' name="password" required  value={password}
                                onChange={(e)=>{setPassword(e.target.value)}}
                               />
@@ -322,7 +307,6 @@ function StudentProfile() {
                               <MDBCardText>Phone</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='722662288' type='text' name="phone" required autoComplete="off" value={phone} 
                                onChange={(e)=>{setphone(e.target.value)}}
                               />
@@ -347,8 +331,9 @@ function StudentProfile() {
                             <MDBCol sm="9" style={{ marginTop: '30px' }}>
                             <Select
                               isMulti
-                              options={selectedOptions}
-                              value={[]}
+                              name="skills[]"
+                              options={skills}
+                              value={selected_skills}
                               onChange={handleSelectChange}
                             />
                           </MDBCol>
@@ -377,7 +362,6 @@ function StudentProfile() {
                               <MDBCardText>Degree</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9" style={{ marginTop: '30px' }}>
-                              {/* <MDBCardText className="text-muted">{ user_obj['name'] != null ? user_obj['name'] : null }</MDBCardText> */}
                               <MDBInput placeholder='Degree' type='text' name="degree" required autoComplete="off" value={degree}
                                onChange={(e)=>{set_degree(e.target.value)}}
                               />
@@ -389,7 +373,6 @@ function StudentProfile() {
                               <MDBCardText>Institution</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='Harvard University'  type='text' name="msc" required autoComplete="off" value={institution}
                                onChange={(e)=>{set_institution(e.target.value)}}
                               />
@@ -402,7 +385,6 @@ function StudentProfile() {
                               <MDBCardText>Majors</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='B.Sc'  type='text' name="major" required autoComplete="off" value={majors}
                                onChange={(e)=>{set_majors(e.target.value)}}
                               />
@@ -413,11 +395,10 @@ function StudentProfile() {
 
                           <MDBRow>
                             <MDBCol sm="3">
-                              <MDBCardText>Passing Year</MDBCardText>
+                              <MDBCardText>Passing Date</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
-                              <MDBInput placeholder='20/11/1947'  type='month' name="passing_year" required autoComplete="off" value={passing_year}
+                              <MDBInput placeholder='20/11/1947'  type='date' name="passing_year" required autoComplete="off" value={passing_year}
                                onChange={(e)=>{set_passing_year(e.target.value)}}
                               />
                             </MDBCol>
@@ -430,7 +411,6 @@ function StudentProfile() {
                               <MDBCardText>Grade / CGPA</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='A+'  type='text' name="grade" required autoComplete="off" value={grade_CGPA}
                                onChange={(e)=>{set_grade_CGPA(e.target.value)}}
                               />
@@ -524,7 +504,6 @@ function StudentProfile() {
                               <MDBCardText>Company Name</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9" style={{ marginTop: '30px' }}>
-                              {/* <MDBCardText className="text-muted">{ user_obj['name'] != null ? user_obj['name'] : null }</MDBCardText> */}
                               <MDBInput placeholder='Private limited' type='text' name="company_name" required autoComplete="off" value={company_name}
                                onChange={(e)=>{set_company_name(e.target.value)}}
                               />
@@ -536,7 +515,6 @@ function StudentProfile() {
                               <MDBCardText>Duration / Start Date</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='MSC' type='date' name="start_date" required autoComplete="off" pattern="\d{4}-\d{2}-\d{2}" value={start_date}
                                onChange={(e)=>{set_start_date(e.target.value)}}
                               />
@@ -549,7 +527,6 @@ function StudentProfile() {
                               <MDBCardText>Duration / End Date </MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='...'  type='date' name="end_date" required autoComplete="off" pattern="\d{4}-\d{2}-\d{2}" value={end_date}
                                onChange={(e)=>{set_end_date(e.target.value)}}
                               />
@@ -563,7 +540,6 @@ function StudentProfile() {
                               <MDBCardText>Description</MDBCardText>
                             </MDBCol>
                             <MDBCol sm="9">
-                              {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
                               <MDBInput placeholder='....'  type='text' name="description" required autoComplete="off" value={description}
                                onChange={(e)=>{set_description(e.target.value)}}
                               />

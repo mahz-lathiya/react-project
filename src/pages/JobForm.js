@@ -71,6 +71,12 @@ function JobForm() {
 
   useEffect(() => {
     if (localStorage.getItem('token') != "" && localStorage.getItem('token') != null) {
+      let user_data = JSON.parse(localStorage.getItem('user_data'));
+
+      if((user_obj['role_type'] != 1)){
+        navigate('/not_allowed');
+      }
+
       let yurl = new URL(window.location.href);
       let splitted_path = yurl.pathname.split('/');
 
@@ -101,19 +107,26 @@ function JobForm() {
           throw new Error(response.message);
         }
       }
-      if(response.skills[0] != undefined){
-        set_skills(response.skills);
 
-        if((response.job_data[0]['job_id'] != undefined) && (response.job_data[0]['job_id'] != 0)){
-          let chosen_skills = [];
+      if(response.skills[0] == undefined){
+        set_skills([{
+          'value' : null,
+          'label' : 'Select Skills'
+        }]);
+      }
+      else{
+        set_skills(response.skills);
+      }
+
+      if((response.job_data[0]['job_id'] != undefined) && (response.job_data[0]['job_id'] != 0)){
+        let chosen_skills = [];
   
-          for(let key in response.skills){
-            if(response.skills[key]['selected'] != undefined && response.skills[key]['selected'] != null){
-              chosen_skills.push(response.skills[key]);
-            }
+        for(let key in response.skills){
+          if(response.skills[key]['selected'] != undefined && response.skills[key]['selected'] != null){
+            chosen_skills.push(response.skills[key]);
           }
-          set_selected_skills(chosen_skills);
         }
+        set_selected_skills(chosen_skills);
       }
 
       if(response.job_data[0] != undefined){
