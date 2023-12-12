@@ -39,7 +39,7 @@ const useStyles = createUseStyles({
     }
 });
 
-function StudentProfile() {
+function JobsData() {
     const navigate = useNavigate();
     const [jobs_data, setJobsData] = useState([]);
     const [searchText, setSearchText] = useState("");
@@ -267,4 +267,4 @@ function StudentProfile() {
     );
 }
 
-export default StudentProfile;
+export default JobsData;

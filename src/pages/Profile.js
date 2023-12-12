@@ -163,6 +163,7 @@ function StudentProfile() {
 
     let form_obj = new FormData(e.target);
     form_obj.set('user_name', name);
+    form_obj.set('role_id', 2);
     form_obj.set('user_email',email);
     form_obj.set('user_password',password);
     form_obj.set('user_id',JSON.parse(user_obj.id));

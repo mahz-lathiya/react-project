@@ -1,13 +1,15 @@
-import React,{ useState, useEffect } from 'react'
-import {  useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from "react-router-dom"
 import { createUseStyles, useTheme } from 'react-jss';
+
+import BeatLoader from "react-spinners/BeatLoader";
 
 import { Column, Row } from 'simple-flexbox';
 import { SidebarComponent, SidebarContext } from '../components/sidebar/SidebarComponent';
 import HeaderComponent from '../components/header/HeaderComponent';
 
 import Theme from '../resources/theme';
-import {ThemeProvider} from 'react-jss';
+import { ThemeProvider } from 'react-jss';
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,340 +18,342 @@ import {API_BASE_URL} from '../api';
 
 import './App.css';
 import {
-    MDBCol,
-    MDBContainer,
-    MDBRow,
-    MDBCard,
-    MDBCardText,
-    MDBCardBody,
-    MDBCardImage,
-    MDBBtn,
-    MDBInput
-  } from 'mdb-react-ui-kit';
-  
+  MDBCol,
+  MDBContainer,
+  MDBRow,
+  MDBCard,
+  MDBCardText,
+  MDBCardBody,
+  MDBBtn,
+  MDBInput
+} from 'mdb-react-ui-kit';
+
+import Select from 'react-select';
+
+import moment from 'moment';
+
 const useStyles = createUseStyles({
-    container: {
-        height: '100%',
-        minHeight: 850
-    },
-    mainBlock: {
-        marginLeft: 255,
-        padding: 30,
-        '@media (max-width: 1080px)': {
-            marginLeft: 0
-        }
-    },
-    contentBlock: {
-        marginTop: 54
+  container: {
+    height: '100%',
+    minHeight: 850
+  },
+  mainBlock: {
+    marginLeft: 255,
+    padding: 30,
+    '@media (max-width: 1080px)': {
+      marginLeft: 0
     }
+  },
+  contentBlock: {
+    marginTop: 54
+  }
 });
 
-function StudentProfile() {
-    const navigate = useNavigate();
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [roleType, setroleType] = useState("")
-    const [validationErrors, setValidationErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+function Profile() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [phone, setphone] = useState("")
+  const [company, setCompany] = useState("")
+  const [user_id, set_user] = useState("")
+  const [degree, set_degree] = useState("")
+  const [institution, set_institution] = useState("")
+  const [majors, set_majors] = useState("")
+  const [passing_year, set_passing_year] = useState("")
+  const [grade_CGPA, set_grade_CGPA] = useState("")
+  const [created_at, set_created_at] = useState("")
+  const [start_date, set_start_date] = useState("")
+  const [end_date, set_end_date] = useState("")
+  const [description, set_description] = useState("")
+  const [website, set_website] = useState("")
+  const [skills, set_skills] = useState("");
+  const [selected_skills, set_selected_skills] = useState([]);
 
-    const theme = useTheme();
-    const classes = useStyles({ theme });
- 
-    useEffect(()=>{
-        if(localStorage.getItem('token') != "" && localStorage.getItem('token') != null){
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-        }
-        else{
-            navigate('/');
-        }
-    },[])
+  const theme = useTheme();
+  const classes = useStyles({ theme });
 
-    const submitForm = (e) =>{
-        e.preventDefault();
-
-        if(password != confirmPassword){
-            toast.warn('Password does not match', {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
-            return;
-        }
-
-        let form_obj = new FormData();
-        form_obj.set('name', name);
-        form_obj.set('email',email);
-        form_obj.set('password',password);
-        form_obj.set('confirm_password',confirmPassword);
-        form_obj.set('roleType', roleType);
-       
-        // let payload = {
-        //     name: name,
-        //     email:email,
-        //     password:password,
-        //     password_confirmation:confirmPassword,
-        //     roleType: roleType
-        // };
-        let options = {
-            method: 'POST',
-            body : form_obj,
-            headers: {
-                // 'Content-Type': 'application/json'
-            },
-        };
-
-        fetch(`${API_BASE_URL}/register`,options)
-        .then(function(promise){
-            return promise.json();
-        })
-        .then((response) => {
-            if(response.success != true){
-                throw new Error(response.message);
-            }
-            toast.success(response.message, {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
-
-            setIsSubmitting(false)
-            // localStorage.setItem('token', r.data.token)
-            setTimeout(() => {
-                navigate("/");
-            }, 2000);
-        })
-        .catch((e) => {
-            toast.warn(e.message, {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
-
-            setIsSubmitting(false)
-            // if (e.response.data.errors != undefined) {
-            //     setValidationErrors(e.response.data.errors);
-            // }
-        });
+  useEffect(() => {
+    if (localStorage.getItem('token') != "" && localStorage.getItem('token') != null) {
+      loadUserData();
     }
+    else {
+      navigate('/');
+    }
+  }, [])
 
-    var user_obj = JSON.parse(localStorage.getItem('user_data'));
+  async function loadUserData(){
+    try{
+      let options = {
+        method: "GET"
+      };
 
-    return (
-        <ThemeProvider theme={Theme}>
-        <SidebarContext>
-            <Row className={classes.container}>
-                <SidebarComponent />
-                <Column flexGrow={1} className={classes.mainBlock}>
-                    <HeaderComponent />
-                    <h2>Profile Detail</h2>
-                    <div className={classes.contentBlock}>
-                        {/* <PrivateRoutes /> */}
+      let promise = await fetch(`${API_BASE_URL}/edit-profile-full/${user_obj.id}`, options);
 
-                        <section style={{ backgroundColor: '#eee' }}>
-      <MDBContainer className="py-5">
-      <form action="" onSubmit={submitForm}>
-        <MDBRow>
-          {/* <MDBCol>
-            <MDBBreadcrumb className="bg-light rounded-3 p-3 mb-4">
-              <MDBBreadcrumbItem>
-                <a href='#'>Home</a>
-              </MDBBreadcrumbItem>
-              <MDBBreadcrumbItem>
-                <a href="#">User</a>
-              </MDBBreadcrumbItem>
-              <MDBBreadcrumbItem active>User Profile</MDBBreadcrumbItem>
-            </MDBBreadcrumb>
-          </MDBCol> */}
-        </MDBRow>
+      let response = await promise.json();
 
-        <MDBRow>
-          <MDBCol lg="4">
-            <MDBCard className="mb-4">
-              <MDBCardBody className="" style={{  display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                
-                <MDBCardImage
-                  src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                  alt="avatar"
-                  className="rounded-circle"
-                  style={{ width: '150px' }}
-                  fluid />
-                  
-                <p className="text-muted mb-1">{ user_obj['name'] != null ? user_obj['name'] : null }</p>
-                <p className="text-muted mb-4">{ user_obj['email'] != null ? user_obj['email'] : null }</p>
-                <div className="d-flex justify-content-center mb-2">
-                  {/* <MDBBtn>Follow</MDBBtn>
-                  <MDBBtn outline className="ms-1">Message</MDBBtn> */}
-                </div>
-              </MDBCardBody>
-            </MDBCard>
+      if(!promise.ok){
+        if(response.message != undefined){
+          throw new Error(response.message);
+        }
+      }
 
-            {/* <MDBCard className="mb-4 mb-lg-0">
-              <MDBCardBody className="p-0">
-                <MDBListGroup flush className="rounded-3">
-                  <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                    <MDBIcon fas icon="globe fa-lg text-warning" />
-                    <MDBCardText>https://mdbootstrap.com</MDBCardText>
-                  </MDBListGroupItem>
-                  <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                    <MDBIcon fab icon="github fa-lg" style={{ color: '#333333' }} />
-                    <MDBCardText>mdbootstrap</MDBCardText>
-                  </MDBListGroupItem>
-                  <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                    <MDBIcon fab icon="twitter fa-lg" style={{ color: '#55acee' }} />
-                    <MDBCardText>@mdbootstrap</MDBCardText>
-                  </MDBListGroupItem>
-                  <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                    <MDBIcon fab icon="instagram fa-lg" style={{ color: '#ac2bac' }} />
-                    <MDBCardText>mdbootstrap</MDBCardText>
-                  </MDBListGroupItem>
-                  <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                    <MDBIcon fab icon="facebook fa-lg" style={{ color: '#3b5998' }} />
-                    <MDBCardText>mdbootstrap</MDBCardText>
-                  </MDBListGroupItem>
-                </MDBListGroup>
-              </MDBCardBody>
-            </MDBCard> */}
-          </MDBCol>
-          <MDBCol lg="8">
-            <MDBCard className="mb-4">
-              <MDBCardBody>
-                <MDBRow>
-                <h2>Profile Detail</h2>
-                  <MDBCol sm="3">
-                    <MDBCardText>Full Name</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    {/* <MDBCardText className="text-muted">{ user_obj['name'] != null ? user_obj['name'] : null }</MDBCardText> */}
-                    <MDBInput placeholder='username...' type='text' name="name" required autoComplete="off" value={ user_obj['name'] != null ? user_obj['name'] : null }/>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText>Email</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    {/* <MDBCardText className="text-muted">{ user_obj['email'] != null ? user_obj['email'] : null }</MDBCardText> */}
-                    <MDBInput placeholder='email...' id='form1' type='email' name="email" required autoComplete="off" value={ user_obj['email'] != null ? user_obj['email'] : null }/>
-                  </MDBCol>
-                </MDBRow>
-                <hr />
-                <MDBRow>
-                  <MDBCol sm="3">
-                    <MDBCardText>Phone</MDBCardText>
-                  </MDBCol>
-                  <MDBCol sm="9">
-                    <MDBCardText className="text-muted">(097) 234-5678</MDBCardText>
-                  </MDBCol>
-                </MDBRow>
+      if(response.skills[0] == undefined){
+        set_skills([{
+          'value' : null,
+          'label' : 'Select Skills'
+        }]);
+      }
+      else{
+        set_skills(response.skills);
+      }
 
-                <MDBCol sm="9">
+      if((response.user_data[0]['id'] != undefined) && (response.user_data[0]['id'] != 0)){
+        let chosen_skills = [];
+  
+        for(let key in response.skills){
+          if(response.skills[key]['selected'] != undefined && response.skills[key]['selected'] != null){
+            chosen_skills.push(response.skills[key]);
+          }
+        }
+        set_selected_skills(chosen_skills);
+      }
+
+      if(response.user_data[0] != undefined){
+        render_data(response.user_data[0]);
+      }
+
+    }
+    catch(e){
+      console.warn(e.message);
+    }
+  }
+
+  function render_data(data={}){
+    setName(data['name']);
+    setEmail(data['email']);
+    setPassword(data['password']);
+    setphone(data['phone']);
+    set_user(data['user_id']);
+    set_degree(data['degree']);
+    set_institution(data['institution']);
+    set_majors(data['majors']);
+    set_passing_year(data['passing_year']);
+    set_grade_CGPA(data['grade_CGPA']);
+    set_created_at(data['created_at']);
+    set_start_date(data['start_date']);
+    set_end_date(data['end_date']);
+    set_description(data['description']);
+    set_website(data['website_address']);
+  }
+
+  var user_obj = JSON.parse(localStorage.getItem('user_data'));
+
+  var date_new = new Date();
+  const formatted_date = moment(date_new).format('YYYY-MM-DD HH:mm:ss')
+   
+  const handleSelectChange = (selectedValues) => {
+    set_selected_skills(selectedValues);
+  };
+   
+
+  const submitForm = (e) =>{
+    e.preventDefault();
+
+    let form_obj = new FormData(e.target);
+    form_obj.set('user_name', name);
+    form_obj.set('role_id', 1);
+    form_obj.set('user_email',email);
+    form_obj.set('user_password',password);
+    form_obj.set('user_id',JSON.parse(user_obj.id));
+    form_obj.set('degree', degree);
+    form_obj.set('institution', institution);
+    form_obj.set('majors', majors);
+    form_obj.set('passing_year', passing_year);
+    form_obj.set('grade_CGPA', grade_CGPA);
+    form_obj.set('start_date', start_date);
+    form_obj.set('end_date', end_date);
+    form_obj.set('description', description);
+    form_obj.set('updated_at', formatted_date);
+    form_obj.set('website', website);
+    form_obj.set('created_at', formatted_date);
+   
+    let options = {
+        method: 'POST',
+        body : form_obj,
+        headers: {
+            // 'Content-Type': 'application/json'
+        },
+    };
+
+    fetch(`${API_BASE_URL}/insert-profile`,options)
+    .then(function(promise){
+        return promise.json();
+    })
+    .then((response) => {
+        if(response.status != true){
+            throw new Error(response.message);
+        }
+        toast.success(response.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+
+        setIsSubmitting(false)
+        // localStorage.setItem('token', r.data.token)
+        setTimeout(() => {
+            //navigate("/student_profile");
+        }, 2000);
+    })
+    .catch((e) => {
+        toast.warn(e.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+
+        setIsSubmitting(false)
+        // if (e.response.data.errors != undefined) {
+        //     setValidationErrors(e.response.data.errors);
+        // }
+    });
+}
+
+  return (
+    <ThemeProvider theme={Theme}>
+      <SidebarContext>
+        <Row className={classes.container}>
+          <SidebarComponent />
+          <Column flexGrow={1} className={classes.mainBlock}>
+            <HeaderComponent />
+            <h2>Profile Detail</h2>
+            <div className={classes.contentBlock}>
+              {/* <PrivateRoutes /> */}
+              {
+                (name == undefined || name == '' ) ? 
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '500px' }}>
+                <BeatLoader color="#36d7b7" />
+              </div>
+              :
                
-                    <MDBCardBody style={{marginLeft:"150px" , marginTop:"50px" }}>
-                        <MDBBtn style={{ width: '250px', }} type='submit'>Submit</MDBBtn>
+              <section style={{ backgroundColor: '#eee' }}>
+              <form action="" onSubmit={submitForm}>
+                <MDBContainer className="py-5">
+
+                  <MDBRow>
+
+                    <MDBCol lg="12">
+                      <MDBCard className="mb-4">
+                        <MDBCardBody>
+                          <MDBRow>
+
+                            <MDBRow>
+                              <h2>Personal Details</h2>
+                            </MDBRow>
+
+                            <MDBCol sm="3" style={{ marginTop: '30px' }}>
+
+                              <MDBCardText>Full Name</MDBCardText>
+                            </MDBCol>
+                            <MDBCol sm="9" style={{ marginTop: '30px' }}>
+                              <MDBInput placeholder='username...' type='text' name="name" required autoComplete="off" value={name}
+                               onChange={(e)=>{setName(e.target.value)}}
+                              />
+                            </MDBCol>
+                          </MDBRow>
+                          <hr />
+                          <MDBRow>
+                            <MDBCol sm="3">
+                              <MDBCardText>Email</MDBCardText>
+                            </MDBCol>
+                            <MDBCol sm="9">
+                              <MDBInput placeholder='email...'  type='email' name="email" required autoComplete="off" value={email}
+                               onChange={(e)=>{setEmail(e.target.value)}}
+                              />
+                            </MDBCol>
+                          </MDBRow>
+                          <hr />
+
+
+
+                          <MDBRow>
+                            <MDBCol sm="3">
+                              <MDBCardText>Password</MDBCardText>
+                            </MDBCol>
+                            <MDBCol sm="9">
+                              <MDBInput placeholder='...'  type='password' name="password" required  value={password}
+                               onChange={(e)=>{setPassword(e.target.value)}}
+                              />
+                            </MDBCol>
+                          </MDBRow>
+
+                          <hr />
+
+
+
+                          <MDBRow>
+                            <MDBCol sm="3">
+                              <MDBCardText>Phone</MDBCardText>
+                            </MDBCol>
+                            <MDBCol sm="9">
+                              <MDBInput placeholder='722662288' type='text' name="phone" required autoComplete="off" value={phone} 
+                               onChange={(e)=>{setphone(e.target.value)}}
+                              />
+                            </MDBCol>
+                          </MDBRow>
+
+                          <hr />
+
+                          <MDBRow>
+                            <MDBCol sm="3">
+                              <MDBCardText>Website</MDBCardText>
+                            </MDBCol>
+                            <MDBCol sm="9">
+                              <MDBInput placeholder='https://trivago.com' type='text' name="website" required autoComplete="off" value={website} 
+                              onChange={(e)=>{set_website(e.target.value)}}
+                              />
+                            </MDBCol>
+                          </MDBRow>
+
+
+                        </MDBCardBody>
+                      </MDBCard>
+                    </MDBCol>
+                  </MDBRow>
+
+                  <hr />
+
+                  <MDBCol sm="9">
+
+                    <MDBCardBody style={{ marginLeft: "150px", marginTop: "20px", alignItems: 'flex-end', display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <MDBBtn style={{ width: '350px', height:'40px' }} type="submit" >Save Information</MDBBtn>
                     </MDBCardBody>
 
-              </MDBCol>
+                  </MDBCol>
 
-              </MDBCardBody>
-            </MDBCard>
-
-            {/* <MDBRow>
-              <MDBCol md="6">
-                <MDBCard className="mb-4 mb-md-0">
-                  <MDBCardBody>
-                    <MDBCardText className="mb-4"><span className="text-primary font-italic me-1">assigment</span> Project Status</MDBCardText>
-                    <MDBCardText className="mb-1" style={{ fontSize: '.77rem' }}>Web Design</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={80} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Website Markup</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={72} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>One Page</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={89} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Mobile Template</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={55} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Backend API</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={66} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-                  </MDBCardBody>
-                </MDBCard>
-              </MDBCol>
-
-              <MDBCol md="6">
-                <MDBCard className="mb-4 mb-md-0">
-                  <MDBCardBody>
-                    <MDBCardText className="mb-4"><span className="text-primary font-italic me-1">assigment</span> Project Status</MDBCardText>
-                    <MDBCardText className="mb-1" style={{ fontSize: '.77rem' }}>Web Design</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={80} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Website Markup</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={72} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>One Page</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={89} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Mobile Template</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={55} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-
-                    <MDBCardText className="mt-4 mb-1" style={{ fontSize: '.77rem' }}>Backend API</MDBCardText>
-                    <MDBProgress className="rounded">
-                      <MDBProgressBar width={66} valuemin={0} valuemax={100} />
-                    </MDBProgress>
-                  </MDBCardBody>
-                </MDBCard>
-              </MDBCol>
-            </MDBRow> */}
-
-          </MDBCol>
-        </MDBRow>
-
-       </form>
-
-      </MDBContainer>
-    </section>
-                    </div>
-                </Column>
-            </Row>
-        </SidebarContext>
-        </ThemeProvider>
-    );
+                </MDBContainer>
+                </form>
+              </section>
+              }
+            </div>
+          </Column>
+        </Row>
+      </SidebarContext>
+    </ThemeProvider>
+  );
 }
-   
-export default StudentProfile;
+
+export default Profile;
