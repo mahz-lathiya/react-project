@@ -87,6 +87,60 @@ function JobForm() {
     }
   }, [])
 
+  async function deleteFunction(e){
+    try{
+      let form_obj = new FormData();
+      form_obj.set('job_id', job_id);
+
+      let options = {
+        method: "POST",
+        body: form_obj
+      };
+
+      let url = `${API_BASE_URL}/delete_job`;
+
+      let promise = await fetch(url, options);
+
+      let response = await promise.json();
+
+      if(!promise.ok){
+        if(response.message != undefined){
+          throw new Error(response.message);
+        }
+      }
+
+      toast.success(response.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
+      setTimeout(() => {
+        navigate('/jobs');
+      }, 3000);
+
+    }
+    catch(e){
+      toast.warn(e.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
+      console.warn(e.message);
+    }
+  }
+
   async function loadJobData(job_id=null){
     try{
       let options = {
@@ -202,10 +256,8 @@ function JobForm() {
           theme: "light",
         });
 
-        setIsSubmitting(false)
-        // localStorage.setItem('token', r.data.token)
         setTimeout(() => {
-            //navigate("/jobs");
+            navigate("/jobs");
         }, 2000);
     })
     .catch((e) => {
@@ -219,8 +271,6 @@ function JobForm() {
             progress: undefined,
             theme: "light",
         });
-
-        setIsSubmitting(false)
         // if (e.response.data.errors != undefined) {
         //     setValidationErrors(e.response.data.errors);
         // }
@@ -350,8 +400,9 @@ function JobForm() {
 
                 <MDBCol sm="9">
 
-                  <MDBCardBody style={{ marginLeft: "150px", marginTop: "20px", alignItems: 'flex-end', display: 'flex', justifyContent: 'center', width: '100%' }}>
-                    <MDBBtn style={{ width: '350px', height:'40px' }} type="submit" >Save Information</MDBBtn>
+                  <MDBCardBody style={{ marginLeft: "150px", marginTop: "20px", alignItems: 'flex-end', display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
+                    <MDBBtn style={{ width: '175px', height:'40px' }} type="submit" >Save Information</MDBBtn>
+                    <MDBBtn className='btn-danger' style={{ width: '175px', height:'40px' }} type="button" onClick={deleteFunction} >Delete Job</MDBBtn>
                   </MDBCardBody>
 
                 </MDBCol>
