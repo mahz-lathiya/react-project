@@ -58,8 +58,13 @@ function JobsData() {
         }
     }, [])
 
-    function clickCreateJob(){
-        navigate('/modify_job');
+    function clickCreateJob(job_id=null){
+        if(job_id === null){
+            navigate('/modify_job');
+            return;
+        }
+        navigate(`/modify_job/${job_id}`);
+        return;
     }
 
     async function loadUserData(){
@@ -140,7 +145,8 @@ function JobsData() {
         { name: "Action", selector: null, sortable: false, cell : row => ( row.job_id > 0 ? <MDBDropdown>
         <MDBDropdownToggle style={{ width: '120px', height:'40px' }}>Action</MDBDropdownToggle>
         <MDBDropdownMenu>
-          <MDBDropdownItem href={`/modify_job/${row.job_id}`} link={row.job_id}>Edit</MDBDropdownItem>
+          {/* <MDBDropdownItem href={`/modify_job/${row.job_id}`} link={row.job_id}>Edit</MDBDropdownItem> */}
+          <MDBDropdownItem onClick={() => clickCreateJob(row.job_id)}>Edit</MDBDropdownItem>
         </MDBDropdownMenu>
       </MDBDropdown> : null) },
     ];
