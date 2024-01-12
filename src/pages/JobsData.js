@@ -142,13 +142,15 @@ function JobsData() {
         { name: "Company Name", selector: "company_name", sortable: true },
         { name: "Status", selector: "status_text", sortable: true },
         { name: "Required skills", selector: "required_skills", sortable: true },
-        { name: "Action", selector: null, sortable: false, cell : row => ( row.job_id > 0 ? <MDBDropdown>
-        <MDBDropdownToggle style={{ width: '120px', height:'40px' }}>Action</MDBDropdownToggle>
-        <MDBDropdownMenu>
-          {/* <MDBDropdownItem href={`/modify_job/${row.job_id}`} link={row.job_id}>Edit</MDBDropdownItem> */}
-          <MDBDropdownItem onClick={() => clickCreateJob(row.job_id)}>Edit</MDBDropdownItem>
-        </MDBDropdownMenu>
-      </MDBDropdown> : null) },
+        { name: "Action", selector: null, sortable: false, cell : row => ( (row.job_id > 0) && (user_obj['role_type'] == 1) ? 
+        <MDBDropdown>
+            <MDBDropdownToggle style={{ width: '120px', height:'40px' }}>Action</MDBDropdownToggle>
+            <MDBDropdownMenu>
+            {/* <MDBDropdownItem href={`/modify_job/${row.job_id}`} link={row.job_id}>Edit</MDBDropdownItem> */}
+            <MDBDropdownItem onClick={() => clickCreateJob(row.job_id)}>Edit</MDBDropdownItem>
+            </MDBDropdownMenu>
+        </MDBDropdown> : null) 
+        },
     ];
 
     const customPagination = () => {

@@ -284,7 +284,7 @@ function JobForm() {
           <SidebarComponent />
           <Column flexGrow={1} className={classes.mainBlock}>
             <HeaderComponent />
-            <h2>Profile Detail</h2>
+            <h2>Job Detail</h2>
             <div className={classes.contentBlock}>
               {/* <PrivateRoutes /> */}
               {

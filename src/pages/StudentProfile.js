@@ -210,7 +210,7 @@ function Profile() {
         setIsSubmitting(false)
         // localStorage.setItem('token', r.data.token)
         setTimeout(() => {
-            //navigate("/student_profile");
+            navigate("/student_profile");
         }, 2000);
     })
     .catch((e) => {
