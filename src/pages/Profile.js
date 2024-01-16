@@ -14,7 +14,7 @@ import { ThemeProvider } from 'react-jss';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import {API_BASE_URL} from '../api';
+import {API_BASE_URL,SERVER_BASE_URL} from '../api';
 
 import './App.css';
 import {
@@ -68,6 +68,7 @@ function StudentProfile() {
   const [company_name, set_company_name] = useState("")
   const [skills, set_skills] = useState("");
   const [selected_skills, set_selected_skills] = useState([]);
+  const [profile_photo, set_profile_photo] = useState([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -146,6 +147,7 @@ function StudentProfile() {
     set_end_date(data['end_date']);
     set_description(data['description']);
     set_company_name(data['company_name']);
+    set_profile_photo(data?.profile_photo);
   }
 
   var user_obj = JSON.parse(localStorage.getItem('user_data'));
@@ -156,7 +158,95 @@ function StudentProfile() {
   const handleSelectChange = (selectedValues) => {
     set_selected_skills(selectedValues);
   };
-   
+
+	async function getFile() {
+		// open file picker, destructure the one element returned array
+		const pickerOpts = {
+			types: [
+				{
+				description: "Images",
+				accept: {
+					"image/*": [".png", ".gif", ".jpeg", ".jpg"],
+				},
+				},
+			],
+			excludeAcceptAllOption: true,
+			multiple: false,
+		};
+
+		let fileHandle;
+		[fileHandle] = await window.showOpenFilePicker(pickerOpts);
+		let file = await fileHandle.getFile();
+		return file;
+	}
+
+  async function addImage(){
+		try{
+			let file = await getFile();
+
+			let form_obj = new FormData();
+
+      form_obj.set('user_id',user_obj['id']);
+			form_obj.set('image_path',file?.name);
+			form_obj.set('profile_image',file);
+
+      let options = {
+        method: 'POST',
+        body: form_obj
+      };
+
+			let promise = await fetch(`${API_BASE_URL}/save-and-return-file-path`, options);
+
+      let response = await promise.json();
+
+			if(!response.status){
+				throw new Error(response.message);
+			}
+
+      document.querySelector('.profile-image').src= SERVER_BASE_URL + response.data?.image_path;
+
+      user_obj['profile_photo'] = response.data?.image_path;
+      localStorage.setItem('user_data', JSON.stringify(user_obj));
+
+			return;
+		}
+		catch (error){
+			console.warn(error);
+
+			return;
+		}	
+  }
+
+  async function delete_image(){
+		try{
+        let form_obj = new FormData();
+        form_obj.set('user_id',user_obj['id']);
+
+        let options = {
+          method: 'POST',
+          body: form_obj
+        };
+
+				let promise = await fetch(`${API_BASE_URL}/delete-profile-photo`,options);
+
+        let response = await promise.json();
+
+				if(!response.status){
+					throw new Error(response.message);
+				}
+
+        document.querySelector('.profile-image').src= SERVER_BASE_URL + response.data?.default_img_path;
+        user_obj['profile_photo'] = response.data?.default_img_path;
+
+        localStorage.setItem('user_data', JSON.stringify(user_obj));
+			  return;
+		}
+		catch (error){
+			  console.warn(error);
+
+			  return;
+		}
+	}
 
   const submitForm = (e) =>{
     e.preventDefault();
@@ -209,7 +299,7 @@ function StudentProfile() {
         setIsSubmitting(false)
         // localStorage.setItem('token', r.data.token)
         setTimeout(() => {
-            //navigate("/student_profile");
+            navigate("/student_profile");
         }, 2000);
     })
     .catch((e) => {
@@ -311,6 +401,25 @@ function StudentProfile() {
                               <MDBInput placeholder='722662288' type='text' name="phone" required autoComplete="off" value={phone} 
                                onChange={(e)=>{setphone(e.target.value)}}
                               />
+                            </MDBCol>
+                          </MDBRow>
+
+                          <hr/>
+
+                          <MDBRow>
+                            <MDBCol sm="3">
+                              <MDBCardText>Image</MDBCardText>
+                              <MDBBtn type="button" style={{ margin: '3px', width: '85px', height:'40px' }} onClick={(e)=>{addImage()}}>Upload</MDBBtn>
+                              <MDBBtn type="button" style={{ margin: '3px', width: '85px', height:'40px'  }} onClick={(e)=>{delete_image()}}>Delete</MDBBtn>
+                            </MDBCol>
+                            <MDBCol sm="9">
+                              {/* { profile_photo != null ? */}
+                            <img style={{ maxHeight: '300px' }}
+                              src={ SERVER_BASE_URL + profile_photo}
+                              className='img-thumbnail profile-image'
+                              alt='...'
+                              // value={profile_photo}
+                            /> 
                             </MDBCol>
                           </MDBRow>
 

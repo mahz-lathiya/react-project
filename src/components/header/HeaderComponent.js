@@ -9,6 +9,8 @@ import SLUGS from '../../resources/slugs';
 import { IconBell, IconSearch } from '../../assets/icons';
 import DropdownComponent from '../../components/dropdown';
 
+import {SERVER_BASE_URL} from '../../api';
+
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -133,8 +135,6 @@ function HeaderComponent() {
         }, 1000);
     }
 
-    var user_obj = JSON.parse(localStorage.getItem('user_data'));
-
     return (
         <Row className={classes.container} vertical='center' horizontal='space-between'>
             <span className={classes.title}>{title}</span>
@@ -177,7 +177,8 @@ function HeaderComponent() {
                         <>
                             <span className={classes.name}>{ (user_obj['name'] != null) ? user_obj['name'] : '' }</span>
                             <img
-                                src='https://avatars3.githubusercontent.com/u/21162888?s=460&v=4'
+                                // src='https://avatars3.githubusercontent.com/u/21162888?s=460&v=4'
+                                src={SERVER_BASE_URL + user_obj['profile_photo']}
                                 alt='avatar'
                                 className={classes.avatar}
                             />
